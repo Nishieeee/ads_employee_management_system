@@ -108,13 +108,6 @@
             </section>
         </div>
     </main>
-
-    <footer class="app-footer">
-        <div class="container text-center">
-            <p>&copy; <?= date('Y'); ?> ADS Employee Management System | Core PHP, Vanilla JS &amp; Pure CSS</p>
-        </div>
-    </footer>
-
     <script src="js/main.js"></script>
 </body>
 </html>
