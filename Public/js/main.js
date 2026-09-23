@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === 'success') {
-                allEmployees = result.data || [];
+                allEmployees = result.employee || result.data || [];
                 renderTable(allEmployees);
             } else {
                 showAlert(result.message || 'Failed to fetch employees.', 'error');

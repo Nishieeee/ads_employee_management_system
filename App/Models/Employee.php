@@ -8,80 +8,73 @@ class Employee {
         $this->conn = $db;
     }
 
-    // Get all employees
-    public function index() {
-        $query = "SELECT * FROM " . $this->table . " ORDER BY id DESC";
+    // Fetch all employees
+    public function getAllEmployees() {
+        $query = "SELECT id, first_name, last_name, middle_initial, mobile_number, email, sex, job_title FROM " . $this->table . " ORDER BY id ASC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Fetch single employee by ID
-    public function get($id) {
-        $query = "SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 1";
+    // Fetch employee by ID
+    public function getEmployeeById($id) {
+        $query = "SELECT id, first_name, last_name, middle_initial, mobile_number, email, sex, job_title FROM " . $this->table . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Create new employee
-    public function store($data) {
-        $query = "INSERT INTO " . $this->table . " 
-                  (first_name, last_name, middle_initial, mobile_number, email, sex, job_title) 
-                  VALUES (:first_name, :last_name, :middle_initial, :mobile_number, :email, :sex, :job_title)";
-
-        $stmt = $this->conn->prepare($query);
-
-        $middleInitial = !empty($data['middle_initial']) ? strtoupper(substr(trim($data['middle_initial']), 0, 1)) : null;
-
-        $stmt->bindParam(":first_name", $data['first_name']);
-        $stmt->bindParam(":last_name", $data['last_name']);
-        $stmt->bindParam(":middle_initial", $middleInitial);
-        $stmt->bindParam(":mobile_number", $data['mobile_number']);
-        $stmt->bindParam(":email", $data['email']);
-        $stmt->bindParam(":sex", $data['sex']);
-        $stmt->bindParam(":job_title", $data['job_title']);
-
-        if ($stmt->execute()) {
-            return $this->conn->lastInsertId();
+    // Add a new employee
+    public function addEmployee($first_name, $last_name = null, $middle_initial = null, $mobile_number = null, $email = null, $sex = null, $job_title = null) {
+        if (is_array($first_name)) {
+            $data = $first_name;
+            $first_name = $data['first_name'] ?? null;
+            $last_name = $data['last_name'] ?? null;
+            $middle_initial = $data['middle_initial'] ?? null;
+            $mobile_number = $data['mobile_number'] ?? null;
+            $email = $data['email'] ?? null;
+            $sex = $data['sex'] ?? null;
+            $job_title = $data['job_title'] ?? null;
         }
-        return false;
+
+        $mi = !empty($middle_initial) ? strtoupper(substr(trim($middle_initial), 0, 1)) : null;
+
+        $query = "INSERT INTO " . $this->table . " (first_name, last_name, middle_initial, mobile_number, email, sex, job_title) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$first_name, $last_name, $mi, $mobile_number, $email, $sex, $job_title]);
     }
 
-    // Update employee
-    public function update($id, $data) {
-        $query = "UPDATE " . $this->table . " 
-                  SET first_name = :first_name, 
-                      last_name = :last_name, 
-                      middle_initial = :middle_initial, 
-                      mobile_number = :mobile_number, 
-                      email = :email, 
-                      sex = :sex, 
-                      job_title = :job_title 
-                  WHERE id = :id";
+    // Update employee details
+    public function updateEmployee($id, $first_name, $last_name = null, $middle_initial = null, $mobile_number = null, $email = null, $sex = null, $job_title = null) {
+        if (is_array($first_name)) {
+            $data = $first_name;
+            $first_name = $data['first_name'] ?? null;
+            $last_name = $data['last_name'] ?? null;
+            $middle_initial = $data['middle_initial'] ?? null;
+            $mobile_number = $data['mobile_number'] ?? null;
+            $email = $data['email'] ?? null;
+            $sex = $data['sex'] ?? null;
+            $job_title = $data['job_title'] ?? null;
+        }
 
+        $mi = !empty($middle_initial) ? strtoupper(substr(trim($middle_initial), 0, 1)) : null;
+
+        $query = "UPDATE " . $this->table . " SET first_name = ?, last_name = ?, middle_initial = ?, mobile_number = ?, email = ?, sex = ?, job_title = ? WHERE id = ?";
         $stmt = $this->conn->prepare($query);
-
-        $middleInitial = !empty($data['middle_initial']) ? strtoupper(substr(trim($data['middle_initial']), 0, 1)) : null;
-
-        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
-        $stmt->bindParam(":first_name", $data['first_name']);
-        $stmt->bindParam(":last_name", $data['last_name']);
-        $stmt->bindParam(":middle_initial", $middleInitial);
-        $stmt->bindParam(":mobile_number", $data['mobile_number']);
-        $stmt->bindParam(":email", $data['email']);
-        $stmt->bindParam(":sex", $data['sex']);
-        $stmt->bindParam(":job_title", $data['job_title']);
-
-        return $stmt->execute();
+        return $stmt->execute([$first_name, $last_name, $mi, $mobile_number, $email, $sex, $job_title, $id]);
     }
 
     // Delete employee
-    public function delete($id) {
-        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
+    public function deleteEmployee($id) {
+        $query = "DELETE FROM " . $this->table . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        return $stmt->execute([$id]);
     }
+
+    // Backward compatibility aliases
+    public function index() { return $this->getAllEmployees(); }
+    public function get($id) { return $this->getEmployeeById($id); }
+    public function store($data) { return $this->addEmployee($data); }
+    public function update($id, $data) { return $this->updateEmployee($id, $data); }
+    public function delete($id) { return $this->deleteEmployee($id); }
 }

@@ -11,11 +11,11 @@ class EmployeeController {
 
     // GET /Public/employee_api.php
     public function index() {
-        $employees = $this->employee->index();
+        $employees = $this->employee->getAllEmployees();
         http_response_code(200);
         echo json_encode([
             "status" => "success",
-            "count" => count($employees),
+            "employee" => $employees,
             "data" => $employees
         ]);
     }
@@ -31,19 +31,20 @@ class EmployeeController {
             return;
         }
 
-        $employee = $this->employee->get($id);
+        $employee = $this->employee->getEmployeeById($id);
 
         if ($employee) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
+                "employee" => $employee,
                 "data" => $employee
             ]);
         } else {
             http_response_code(404);
             echo json_encode([
                 "status" => "error",
-                "message" => "Employee with ID {$id} not found."
+                "message" => "Employee not found"
             ]);
         }
     }
@@ -57,26 +58,25 @@ class EmployeeController {
                 http_response_code(400);
                 echo json_encode([
                     "status" => "error",
-                    "message" => "Field '{$field}' is required."
+                    "message" => "Invalid input"
                 ]);
                 return;
             }
         }
 
         try {
-            $newId = $this->employee->store($data);
-            if ($newId) {
-                http_response_code(201);
+            $success = $this->employee->addEmployee($data);
+            if ($success) {
+                http_response_code(200);
                 echo json_encode([
                     "status" => "success",
-                    "message" => "Employee created successfully.",
-                    "id" => (int)$newId
+                    "message" => "Employee added successfully"
                 ]);
             } else {
                 http_response_code(500);
                 echo json_encode([
                     "status" => "error",
-                    "message" => "Failed to create employee record."
+                    "message" => "Failed to add employee"
                 ]);
             }
         } catch (PDOException $e) {
@@ -100,12 +100,12 @@ class EmployeeController {
         }
 
         // Check if employee exists
-        $existing = $this->employee->get($id);
+        $existing = $this->employee->getEmployeeById($id);
         if (!$existing) {
             http_response_code(404);
             echo json_encode([
                 "status" => "error",
-                "message" => "Employee with ID {$id} not found."
+                "message" => "Employee not found"
             ]);
             return;
         }
@@ -122,17 +122,17 @@ class EmployeeController {
         ];
 
         try {
-            if ($this->employee->update($id, $mergedData)) {
+            if ($this->employee->updateEmployee($id, $mergedData)) {
                 http_response_code(200);
                 echo json_encode([
                     "status" => "success",
-                    "message" => "Employee updated successfully."
+                    "message" => "Employee updated successfully"
                 ]);
             } else {
                 http_response_code(500);
                 echo json_encode([
                     "status" => "error",
-                    "message" => "Failed to update employee record."
+                    "message" => "Failed to update employee"
                 ]);
             }
         } catch (PDOException $e) {
@@ -150,33 +150,33 @@ class EmployeeController {
             http_response_code(400);
             echo json_encode([
                 "status" => "error",
-                "message" => "Employee ID is required."
+                "message" => "Invalid ID"
             ]);
             return;
         }
 
         // Check if employee exists
-        $existing = $this->employee->get($id);
+        $existing = $this->employee->getEmployeeById($id);
         if (!$existing) {
             http_response_code(404);
             echo json_encode([
                 "status" => "error",
-                "message" => "Employee with ID {$id} not found."
+                "message" => "Employee not found"
             ]);
             return;
         }
 
-        if ($this->employee->delete($id)) {
+        if ($this->employee->deleteEmployee($id)) {
             http_response_code(200);
             echo json_encode([
                 "status" => "success",
-                "message" => "Employee deleted successfully."
+                "message" => "Employee deleted successfully"
             ]);
         } else {
             http_response_code(500);
             echo json_encode([
                 "status" => "error",
-                "message" => "Failed to delete employee record."
+                "message" => "Failed to delete employee"
             ]);
         }
     }
