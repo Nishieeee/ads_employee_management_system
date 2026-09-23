@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class Employee {
     private $conn;
@@ -8,40 +8,80 @@ class Employee {
         $this->conn = $db;
     }
 
-    // fetch employee
-    public function get($id) {
-        return;
+    // Get all employees
+    public function index() {
+        $query = "SELECT * FROM " . $this->table . " ORDER BY id DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // get all employees
-    public function index() {
+    // Fetch single employee by ID
+    public function get($id) {
+        $query = "SELECT * FROM " . $this->table . " WHERE id = :id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
-        // query to db
-        $query = "SELECT * FROM " . $this->table;
+    // Create new employee
+    public function store($data) {
+        $query = "INSERT INTO " . $this->table . " 
+                  (first_name, last_name, middle_initial, mobile_number, email, sex, job_title) 
+                  VALUES (:first_name, :last_name, :middle_initial, :mobile_number, :email, :sex, :job_title)";
 
-        // load query
         $stmt = $this->conn->prepare($query);
 
-        // execute query
-        if($stmt->execute()) {
-            return $stmt->fetchAll();
-        } else {
-            return null;
+        $middleInitial = !empty($data['middle_initial']) ? strtoupper(substr(trim($data['middle_initial']), 0, 1)) : null;
+
+        $stmt->bindParam(":first_name", $data['first_name']);
+        $stmt->bindParam(":last_name", $data['last_name']);
+        $stmt->bindParam(":middle_initial", $middleInitial);
+        $stmt->bindParam(":mobile_number", $data['mobile_number']);
+        $stmt->bindParam(":email", $data['email']);
+        $stmt->bindParam(":sex", $data['sex']);
+        $stmt->bindParam(":job_title", $data['job_title']);
+
+        if ($stmt->execute()) {
+            return $this->conn->lastInsertId();
         }
+        return false;
     }
 
-    // create new employees
-    public function store() {
-        return;
+    // Update employee
+    public function update($id, $data) {
+        $query = "UPDATE " . $this->table . " 
+                  SET first_name = :first_name, 
+                      last_name = :last_name, 
+                      middle_initial = :middle_initial, 
+                      mobile_number = :mobile_number, 
+                      email = :email, 
+                      sex = :sex, 
+                      job_title = :job_title 
+                  WHERE id = :id";
+
+        $stmt = $this->conn->prepare($query);
+
+        $middleInitial = !empty($data['middle_initial']) ? strtoupper(substr(trim($data['middle_initial']), 0, 1)) : null;
+
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        $stmt->bindParam(":first_name", $data['first_name']);
+        $stmt->bindParam(":last_name", $data['last_name']);
+        $stmt->bindParam(":middle_initial", $middleInitial);
+        $stmt->bindParam(":mobile_number", $data['mobile_number']);
+        $stmt->bindParam(":email", $data['email']);
+        $stmt->bindParam(":sex", $data['sex']);
+        $stmt->bindParam(":job_title", $data['job_title']);
+
+        return $stmt->execute();
     }
 
-    // update employee
-    public function update() {
-        return;
+    // Delete employee
+    public function delete($id) {
+        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+        return $stmt->execute();
     }
-
-    // delete TODO: create soft delete method
-    public function delete() {
-        return;
-    }
-} 
+}
