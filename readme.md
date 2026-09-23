@@ -7,12 +7,12 @@ A simple, lightweight Employee Management Web Application built with **Core PHP*
 ## 🛠 Features
 
 - **Full REST API** with standard CRUD operations:
-  - `GET /Public/employee_api.php` — Retrieve all employee records.
-  - `GET /Public/employee_api.php?id={id}` — Retrieve a single employee by ID.
-  - `POST /Public/employee_api.php` — Create a new employee (raw JSON).
-  - `PUT /Public/employee_api.php?id={id}` — Update an existing employee (raw JSON).
-  - `DELETE /Public/employee_api.php?id={id}` — Delete an employee by ID.
-- **Connection Test Endpoint**: `Public/test_connection.php` returns JSON verification of MySQL connection.
+  - `GET /api/employee_api.php` — Retrieve all employee records.
+  - `GET /api/employee_api.php?id={id}` — Retrieve a single employee by ID.
+  - `POST /api/employee_api.php` — Create a new employee (raw JSON).
+  - `PUT /api/employee_api.php?id={id}` — Update an existing employee (raw JSON).
+  - `DELETE /api/employee_api.php?id={id}` — Delete an employee by ID.
+- **Connection Test Endpoint**: `/api/test_connection.php` returns JSON verification of MySQL connection.
 - **Web UI**:
   - Add and Edit employee records.
   - Delete records with confirmation prompt.
@@ -25,19 +25,23 @@ A simple, lightweight Employee Management Web Application built with **Core PHP*
 
 ```text
 ads_employee_management_system/
-├── Config/
-│   └── database.php                # Database PDO connection class
+├── api/
+│   ├── database.php                # References Config/database.php
+│   ├── employee_api.php            # API endpoint (matches PDF module)
+│   └── test_connection.php         # DB test endpoint (matches PDF module)
 ├── App/
 │   ├── Controllers/
 │   │   └── EmployeeController.php  # Handles REST actions & validation
 │   └── Models/
 │       └── Employee.php            # PDO SQL CRUD queries
+├── Config/
+│   └── database.php                # Database PDO connection class
 ├── Public/
 │   ├── css/
 │   │   └── style.css               # Pure CSS (no frameworks)
 │   ├── js/
 │   │   └── main.js                 # Vanilla JS Fetch API CRUD & DOM
-│   ├── employee_api.php            # REST API entry point
+│   ├── employee_api.php            # Public REST API entry point
 │   ├── index.php                   # Web application interface
 │   └── test_connection.php         # DB connection test endpoint
 ├── database.sql                    # MySQL schema & sample seed data
@@ -56,8 +60,9 @@ ads_employee_management_system/
    ```
 3. **Test Database Connection in Browser / Postman**:
    ```text
-   GET http://localhost/myprojects/ads_employee_management_system/Public/test_connection.php
+   GET http://localhost/myprojects/ads_employee_management_system/api/test_connection.php
    ```
 4. **Postman API Testing**:
+   - URL: `http://localhost/myprojects/ads_employee_management_system/api/employee_api.php`
    - Ensure the request header `Content-Type: application/json` is used for `POST` and `PUT`.
    - Provide JSON data in the **Body** tab with **raw** and **JSON** format.
