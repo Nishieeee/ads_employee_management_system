@@ -1,11 +1,10 @@
 
 -- CREATE DATABASE --
-CREATE DATABASE ads_employee_management_system;
+CREATE DATABASE IF NOT EXISTS test_connection_db;
 USE test_connection_db;
 
-
 -- CREATE TABLES --
-IF NOT EXISTS CREATE TABLE employees (
+CREATE TABLE IF NOT EXISTS employees (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
